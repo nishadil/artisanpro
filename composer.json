@@ -1,0 +1,27 @@
+{
+    "name": "nishadil/artisanpro",
+    "description": "Artisan Pro is an advance laravel artisan command collection. You can use it to create a Service, Trait, View(filename.blade.php), and much more.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Nishadil\\Artisanpro\\": "src/"
+        },
+        "classmap": ["src/"]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Nishadil\\Artisanpro\\ArtisanproProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "Nishadil.Dev",
+            "email": "opensource@nishadil.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
