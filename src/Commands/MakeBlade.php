@@ -10,14 +10,14 @@ use Symfony\Component\Console\Input\InputArgument;
 
 use Exception;
 
-class MakeTraitCommand extends CommandGenerator{
+class MakeBlade extends CommandGenerator{
 
     /**
     * argumentName
     *
     * @var string
     */
-    public $argumentName = 'trait';
+    public $argumentName = 'view';
 
 
     /**
@@ -25,7 +25,7 @@ class MakeTraitCommand extends CommandGenerator{
     * name
     * @var string
     */
-    protected $name = 'make:trait';
+    protected $name = 'make:view';
 
 
     /**
@@ -54,18 +54,22 @@ class MakeTraitCommand extends CommandGenerator{
     */
     protected function getArguments(): array{
         return [
-            ['trait', InputArgument::REQUIRED, 'The name of the trait'],
+            ['view', InputArgument::REQUIRED, 'The name of the view'],
         ];
     }
 
 
     /**
-    * getTraitName
+    * getViewName
     *
     * @return string
     */
-    private function getTraitName() :string {
-        return Str::studly($this->argument('trait'));
+    private function getViewName() :string {
+        $view = Str::camel($this->argument('view'));
+        if( Str::contains( strtolower( $view ), '.blade.php' ) === false ):
+            $view .= '.blade.php';
+        endif;
+        return $view;
     }
 
 
@@ -75,35 +79,19 @@ class MakeTraitCommand extends CommandGenerator{
     * @return string
     */
     protected function getDestinationFilePath() :string {
-        return app_path()."/Traits".'/'. $this->getTraitName() . '.php';
+        return app_path()."/resources/views".'/'. $this->getViewName();
     }
 
+
     /**
-    * getTraitNameWithoutNamespace
+    * getTemplateFilePath
     *
     * @return string
     */
-    private function getTraitNameWithoutNamespace() :string {
-        return class_basename($this->getTraitName());
+    protected function getTemplateFilePath() :string {
+        return '/templates/blade.stub';
     }
 
-    /**
-    * getDefaultNamespace
-    *
-    * @return string
-    */
-    public function getDefaultNamespace() :string {
-        return "App\\Traits";
-    }
-
-    /**
-    * getStubFilePath
-    *
-    * @return string
-    */
-    protected function getStubFilePath() :string {
-        return '/stubs/traits.stub';
-    }
 
     /**
     * getTemplateContents
@@ -111,16 +99,13 @@ class MakeTraitCommand extends CommandGenerator{
     * @return string
     */
     protected function getTemplateContents() :string {
-        return( 
-            new GenerateFile(
-                __DIR__.$this->getStubFilePath(),
-                [
-                    'CLASS_NAMESPACE'   => $this->getClassNamespace(),
-                    'CLASS'             => $this->getTraitNameWithoutNamespace()
-                ]
+        return ( 
+            new GenerateFile( 
+                __DIR__.$this->getTemplateFilePath()
             )
         )->render();
     }
+
 
     /**
     * Execute the console command.
@@ -128,16 +113,18 @@ class MakeTraitCommand extends CommandGenerator{
     * @return int
     */
     public function handle(){
-        $path = str_replace('\\', '/', $this->getDestinationFilePath());
+        $path = str_replace( '\\', '/', $this->getDestinationFilePath() );
 
-        if( !$this->laravel['files']->isDirectory( $dir = dirname( $path ) ) ):
-            $this->laravel['files']->makeDirectory( $dir, 0777, true );
+        if( !$this->laravel['files']->isDirectory( $dir = dirname($path) ) ):
+            $this->laravel['files']->makeDirectory($dir, 0777, true);
         endif;
 
         $contents = $this->getTemplateContents();
 
         try{
-            (new FileGenerator( $path, $contents ))->generate();
+            (
+                new FileGenerator( $path, $contents )
+            )->generate();
             $this->info("Created : {$path}");
         }catch(Exception $e){
             $this->error("File : {$e->getMessage()}");
