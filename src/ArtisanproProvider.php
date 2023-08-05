@@ -5,6 +5,7 @@ namespace Nishadil\Artisanpro;
 use Illuminate\Support\ServiceProvider;
 use Nishadil\Artisanpro\Commands\MakeTrait;
 use Nishadil\Artisanpro\Commands\MakeBlade;
+use Nishadil\Artisanpro\Commands\MakeView;
 
 class ArtisanproProvider extends ServiceProvider{
 
@@ -17,7 +18,8 @@ class ArtisanproProvider extends ServiceProvider{
     public function register(){
         $this->commands([
             MakeTrait::class,
-            MakeBlade::class
+            MakeBlade::class,
+            MakeView::class
         ]);
     }
 

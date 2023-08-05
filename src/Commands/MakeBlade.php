@@ -17,7 +17,7 @@ class MakeBlade extends CommandGenerator{
     *
     * @var string
     */
-    public $argumentName = 'view';
+    public $argumentName = 'blade';
 
 
     /**
@@ -25,7 +25,7 @@ class MakeBlade extends CommandGenerator{
     * name
     * @var string
     */
-    protected $name = 'make:view';
+    protected $name = 'make:blade';
 
 
     /**
@@ -33,7 +33,7 @@ class MakeBlade extends CommandGenerator{
     * description
     * @var string
     */
-    protected $description = 'Command description';
+    protected $description = 'Create a new blade file';
 
 
     /**
@@ -54,22 +54,22 @@ class MakeBlade extends CommandGenerator{
     */
     protected function getArguments(): array{
         return [
-            ['view', InputArgument::REQUIRED, 'The name of the view'],
+            ['blade', InputArgument::REQUIRED, 'The name of the blade'],
         ];
     }
 
 
     /**
-    * getViewName
+    * getBladeName
     *
     * @return string
     */
-    private function getViewName() :string {
-        $view = Str::camel($this->argument('view'));
-        if( Str::contains( strtolower( $view ), '.blade.php' ) === false ):
-            $view .= '.blade.php';
+    private function getBladeName() :string {
+        $blade = Str::camel($this->argument('blade'));
+        if( Str::contains( strtolower( $blade ), '.blade.php' ) === false ):
+            $blade .= '.blade.php';
         endif;
-        return $view;
+        return $blade;
     }
 
 
@@ -79,7 +79,7 @@ class MakeBlade extends CommandGenerator{
     * @return string
     */
     protected function getDestinationFilePath() :string {
-        return app_path()."/resources/views".'/'. $this->getViewName();
+        return app_path()."/resources/views".'/'. $this->getBladeName();
     }
 
 

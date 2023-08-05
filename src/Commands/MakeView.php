@@ -10,14 +10,14 @@ use Symfony\Component\Console\Input\InputArgument;
 
 use Exception;
 
-class MakeTrait extends CommandGenerator{
+class MakeView extends CommandGenerator{
 
     /**
     * argumentName
     *
     * @var string
     */
-    public $argumentName = 'trait';
+    public $argumentName = 'view';
 
 
     /**
@@ -25,7 +25,7 @@ class MakeTrait extends CommandGenerator{
     * name
     * @var string
     */
-    protected $name = 'make:trait';
+    protected $name = 'make:view';
 
 
     /**
@@ -33,7 +33,7 @@ class MakeTrait extends CommandGenerator{
     * description
     * @var string
     */
-    protected $description = 'Create a new trair class';
+    protected $description = 'Create a new view file';
 
 
     /**
@@ -54,18 +54,22 @@ class MakeTrait extends CommandGenerator{
     */
     protected function getArguments(): array{
         return [
-            ['trait', InputArgument::REQUIRED, 'The name of the trait'],
+            ['view', InputArgument::REQUIRED, 'The name of the view'],
         ];
     }
 
 
     /**
-    * getTraitName
+    * getViewName
     *
     * @return string
     */
-    private function getTraitName() :string {
-        return Str::studly($this->argument('trait'));
+    private function getViewName() :string {
+        $view = Str::camel($this->argument('view'));
+        if( Str::contains( strtolower( $view ), '.blade.php' ) === false ):
+            $view .= '.blade.php';
+        endif;
+        return $view;
     }
 
 
@@ -75,26 +79,9 @@ class MakeTrait extends CommandGenerator{
     * @return string
     */
     protected function getDestinationFilePath() :string {
-        return app_path()."/Traits".'/'. $this->getTraitName() . '.php';
+        return app_path()."/resources/views".'/'. $this->getViewName();
     }
 
-    /**
-    * getTraitNameWithoutNamespace
-    *
-    * @return string
-    */
-    private function getTraitNameWithoutNamespace() :string {
-        return class_basename($this->getTraitName());
-    }
-
-    /**
-    * getDefaultNamespace
-    *
-    * @return string
-    */
-    public function getDefaultNamespace() :string {
-        return "App\\Traits";
-    }
 
     /**
     * getTemplateFilePath
@@ -102,8 +89,9 @@ class MakeTrait extends CommandGenerator{
     * @return string
     */
     protected function getTemplateFilePath() :string {
-        return '/templates/traits.stub';
+        return '/templates/blade.stub';
     }
+
 
     /**
     * getTemplateContents
@@ -111,16 +99,13 @@ class MakeTrait extends CommandGenerator{
     * @return string
     */
     protected function getTemplateContents() :string {
-        return( 
-            new GenerateFile(
-                __DIR__.$this->getTemplateFilePath(),
-                [
-                    'CLASS_NAMESPACE'   => $this->getClassNamespace(),
-                    'CLASS'             => $this->getTraitNameWithoutNamespace()
-                ]
+        return ( 
+            new GenerateFile( 
+                __DIR__.$this->getTemplateFilePath()
             )
         )->render();
     }
+
 
     /**
     * Execute the console command.
@@ -128,16 +113,18 @@ class MakeTrait extends CommandGenerator{
     * @return int
     */
     public function handle(){
-        $path = str_replace('\\', '/', $this->getDestinationFilePath());
+        $path = str_replace( '\\', '/', $this->getDestinationFilePath() );
 
-        if( !$this->laravel['files']->isDirectory( $dir = dirname( $path ) ) ):
-            $this->laravel['files']->makeDirectory( $dir, 0777, true );
+        if( !$this->laravel['files']->isDirectory( $dir = dirname($path) ) ):
+            $this->laravel['files']->makeDirectory($dir, 0777, true);
         endif;
 
         $contents = $this->getTemplateContents();
 
         try{
-            (new FileGenerator( $path, $contents ))->generate();
+            (
+                new FileGenerator( $path, $contents )
+            )->generate();
             $this->info("Created : {$path}");
         }catch(Exception $e){
             $this->error("File : {$e->getMessage()}");
