@@ -79,7 +79,7 @@ class MakeView extends CommandGenerator{
     * @return string
     */
     protected function getDestinationFilePath() :string {
-        return app_path()."/resources/views".'/'. $this->getViewName();
+        return app_path()."/../resources/views".'/'. $this->getViewName();
     }
 
 

@@ -79,7 +79,7 @@ class MakeBlade extends CommandGenerator{
     * @return string
     */
     protected function getDestinationFilePath() :string {
-        return app_path()."/resources/views".'/'. $this->getBladeName();
+        return app_path()."/../resources/views".'/'. $this->getBladeName();
     }
 
 
